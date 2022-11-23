@@ -16,9 +16,9 @@ namespace MoviesAndActors
 
         public MovieRepository()
         {
-            var starWars4 = new Movie("Star Wars: A New Hope", 1977, "Science Fiction");
-            var starWars5 = new Movie("Star Wars: The Empire Strikes Back", 1980, "Science Fiction");
-            var starWars6 = new Movie("Star Wars: Return of the Jedi", 1983, "Science Fiction");
+            var starWars4 = new Movie("Star Wars: A New Hope", 1977, "Science Fiction", 4.5f);
+            var starWars5 = new Movie("Star Wars: The Empire Strikes Back", 1980, "Science Fiction", 5.25f);
+            var starWars6 = new Movie("Star Wars: Return of the Jedi", 1983, "Science Fiction", 6f);
 
             Movies = new List<Movie>() { starWars4, starWars5, starWars6 };
 
@@ -65,9 +65,68 @@ namespace MoviesAndActors
             }
         }
 
+        // get the top movie by overall rating
+        Movie GetMovieWithBestRating()
+        {
+            return Movies.MaxBy(m => m.Ratings.Average(r => r.RatingValue));
+        }
+
+        // get the top 3 movies by overall rating
+
+        IEnumerable<Movie> GetTopNMovies(int numOfMovies)
+        {
+            return Movies
+                .OrderByDescending(m => m.CalculateOverallRating())
+                .Take(numOfMovies);
+        }
+
+        // get the movie with the 3rd highest overall rating
+        Movie GetThirdPlace()
+        {
+            return Movies
+                .OrderByDescending(m => m.CalculateOverallRating())
+                .Skip(2)
+                .First();
+        }
+
+        // get all the names from all the moves (just the names)
+        IEnumerable<string> GetMovieTitles()
+        {
+            return Movies.Select(m => m.Title);
+        }
+
+        // check if we have any movies from "comedy" => return boolean
+        bool DoWeHaveCategory(string category)
+        {
+            return Movies.Any(m => m.Category == category);
+        }
+
         public IEnumerable<Movie> GetMovieInfo(string search)
         {
             return Movies.Where(m => m.Title.Contains(search));
+        }
+
+        public string? HaveOneInCategory(string category)
+        {
+            return Movies.SingleOrDefault(m => m.Category == category)?.Title;
+        }
+
+        public IEnumerable<Movie> FindNMostExpensive(int count)
+        {
+            return Movies
+                .OrderByDescending(m => m.CostToRent)
+                .Take(count);
+        }
+
+        // find all of the movies that cost $5 or more
+        public IEnumerable<Movie> FindMoviesOverPrice(float price)
+        {
+            return Movies.Where(m => m.CostToRent >= price);
+        }
+
+        public Movie? FindMovieOver10()
+        {
+            return Movies.SingleOrDefault(m => m.CostToRent >= 10);
         }
     }
 }
